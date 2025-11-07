@@ -2,10 +2,9 @@
 import React, { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import styled from 'styled-components';
-import api from '../services/api'; // Nosso Axios configurado
-import { useAuth } from '../context/AuthContext'; // Nosso hook de Auth
+import api from '../services/api'; 
+import { useAuth } from '../context/AuthContext'; 
 
-// --- Estilização ---
 const FormContainer = styled.div`
   max-width: 400px;
   margin: 40px auto;
@@ -32,7 +31,6 @@ const Label = styled.label`
   color: #555;
 `;
 
-// Mensagem de erro amigável (Requisito do projeto)
 const ErrorMessage = styled.p`
   color: #dc3545;
   background: #f8d7da;
@@ -53,29 +51,22 @@ const InfoText = styled.p`
     font-weight: 600;
   }
 `;
-// --- Fim da Estilização ---
 
 const RegisterPage = () => {
-  // Hooks (Requisitos do projeto)
-  // 1. useState para controlar os campos do formulário
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
   
-  // 2. useState para validação e erros
-  const [error, setError] = useState(null); // Mensagem de erro da API
+  const [error, setError] = useState(null); 
   const [loading, setLoading] = useState(false);
 
-  // 3. useNavigate para redirecionar após o cadastro
   const navigate = useNavigate();
   
-  // 4. useAuth para "logar" o usuário automaticamente
   const { login } = useAuth();
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    setError(null); // Limpa erros anteriores
+    setError(null); 
 
-    // Validação básica no cliente (Requisito do projeto)
     if (!username || !password) {
       setError('Por favor, preencha todos os campos.');
       return;
@@ -88,27 +79,19 @@ const RegisterPage = () => {
     setLoading(true);
 
     try {
-      // 3. Comunicação com API (Requisito do projeto)
-      // Chama o endpoint POST /api/auth/register do nosso backend
       const { data } = await api.post('/auth/register', {
         username,
         password,
       });
 
-      // Se deu certo:
-      // 1. "Loga" o usuário no nosso AuthContext
       login(data);
       
-      // 2. Redireciona para a página inicial
       navigate('/');
 
     } catch (err) {
-      // 3. Tratamento de erros (Requisito do projeto)
       if (err.response && err.response.data && err.response.data.message) {
-        // Pega a "mensagem amigável" que enviamos do backend
         setError(err.response.data.message);
       } else {
-        // Erro genérico (ex: backend caiu)
         setError('Ocorreu um erro. Tente novamente.');
       }
       setLoading(false);

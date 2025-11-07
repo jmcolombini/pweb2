@@ -1,41 +1,69 @@
 // src/pages/PostPage.js
 import React, { useState, useEffect } from 'react';
-import { useParams } from 'react-router-dom'; // Hook (Requisito)
+import { useParams } from 'react-router-dom';
 import styled from 'styled-components';
-import api from '../services/api';
-import CommentForm from '../components/CommentForm'; // O formulário que criamos
+import api, { SERVER_URL } from '../services/api'; // Importe o SERVER_URL
+import CommentForm from '../components/CommentForm';
 
 // --- Estilização ---
 const PostContainer = styled.div`
   max-width: 900px;
   margin: 20px auto;
-  padding: 30px;
   background: #ffffff;
   border-radius: 8px;
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+  overflow: hidden; /* Para a imagem se encaixar */
+`;
+
+// Imagem Principal no Topo
+const PostImageHeader = styled.div`
+  width: 100%;
+  height: 400px; /* Altura fixa para a imagem do post */
+  background: #eee;
+  
+  img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+`;
+
+const PostBody = styled.div`
+  padding: 30px 40px;
 `;
 
 const PostTitle = styled.h1`
   font-size: 2.8rem;
   color: #222;
-  margin-bottom: 15px;
+  margin-bottom: 10px;
 `;
 
-const PostMeta = styled.p`
-  font-size: 1rem;
-  color: #777;
+const PostMeta = styled.div`
+  font-size: 1.1rem;
+  color: #555;
   margin-bottom: 30px;
+  display: flex;
+  flex-wrap: wrap; /* Permite que os itens quebrem a linha em telas menores */
+  gap: 20px;
+  align-items: center;
+  border-bottom: 1px solid #eee;
+  padding-bottom: 20px;
 `;
 
-// Estilo para o conteúdo do post
+const Rating = styled.span`
+  font-size: 1.3rem;
+  color: #f39c12;
+  font-weight: 700;
+`;
+
 const PostContent = styled.div`
   color: #333;
   line-height: 1.8;
   font-size: 1.1rem;
-  /* (Preserva quebras de linha e espaços) */
-  white-space: pre-wrap; 
+  white-space: pre-wrap; /* Preserva quebras de linha */
 `;
 
+// (Copie aqui seus estilos de Loading/Error/CommentsSection)
 const LoadingMessage = styled.p`
   text-align: center;
   font-size: 1.2rem;
@@ -55,7 +83,7 @@ const ErrorMessage = styled.p`
 const CommentsSection = styled.div`
   margin-top: 40px;
   border-top: 2px solid #eee;
-  padding-top: 30px;
+  padding: 30px 40px;
 `;
 
 const CommentsTitle = styled.h3`
@@ -87,101 +115,81 @@ const CommentMeta = styled.p`
 // --- Fim da Estilização ---
 
 const PostPage = () => {
-  // Hooks (Requisitos)
-  // 1. useParams para pegar o ':id' da URL
-  const { id: postId } = useParams(); // Renomeia 'id' para 'postId'
-  
-  // 2. useState para guardar os dados do post e comentários
+  const { id: postId } = useParams();
   const [post, setPost] = useState(null);
   const [comments, setComments] = useState([]);
-  
-  // 3. useState para loading e erros
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
-  // 4. useEffect para buscar os dados (Requisito)
   useEffect(() => {
     const fetchPostAndComments = async () => {
       try {
         setLoading(true);
         setError(null);
-
-        // Comunicação com API (Requisito)
-        // 1. Buscar o post individual
         const postRes = await api.get(`/posts/${postId}`);
         setPost(postRes.data);
-
-        // 2. Buscar os comentários daquele post
         const commentsRes = await api.get(`/comments/${postId}`);
         setComments(commentsRes.data);
-
       } catch (err) {
-        // Tratamento de Erros (Requisito)
         console.error('Erro ao buscar dados do post:', err);
-        setError('Falha ao carregar o post. Verifique o link ou tente novamente.');
+        setError('Falha ao carregar a avaliação.');
       } finally {
         setLoading(false);
       }
     };
-
     fetchPostAndComments();
-  }, [postId]); // O array [postId] garante que isso rode de novo se o ID na URL mudar
+  }, [postId]);
 
-  // Função que o CommentForm vai chamar
   const handleCommentAdded = (newComment) => {
-    // Adiciona o novo comentário no final da lista
     setComments([...comments, newComment]);
   };
   
   const formatDate = (isoDate) => {
     return new Date(isoDate).toLocaleString('pt-BR');
   };
+  
+  const renderRating = (rating) => {
+    if (!rating) return '';
+    return '⭐'.repeat(rating);
+  };
 
-  // Renderização condicional
-  if (loading) {
-    return <LoadingMessage>Carregando post...</LoadingMessage>;
-  }
+  if (loading) return <LoadingMessage>Carregando avaliação...</LoadingMessage>;
+  if (error) return <ErrorMessage>{error}</ErrorMessage>;
+  if (!post) return <LoadingMessage>Avaliação não encontrada.</LoadingMessage>;
 
-  if (error) {
-    return <ErrorMessage>{error}</ErrorMessage>;
-  }
-
-  if (!post) {
-    return <LoadingMessage>Post não encontrado.</LoadingMessage>;
-  }
+  // Construir a URL completa da imagem
+  const fullImageUrl = post.imageUrl ? `${SERVER_URL}${post.imageUrl}` : 'https://via.placeholder.com/800x400.png?text=Sem+Foto';
 
   return (
     <PostContainer>
-      {/* 1. O Post Completo */}
-      <PostTitle>{post.title}</PostTitle>
-      <PostMeta>
-        Por: {post.author ? post.author.username : 'Desconhecido'}
-        {' em '} {formatDate(post.createdAt)}
-      </PostMeta>
-      <PostContent>
-        {post.content}
-      </PostContent>
+      <PostImageHeader>
+        <img src={fullImageUrl} alt={post.restaurantName} />
+      </PostImageHeader>
 
-      {/* 2. A Seção de Comentários */}
+      <PostBody>
+        <PostTitle>{post.restaurantName}</PostTitle>
+        <PostMeta>
+          <Rating>{renderRating(post.rating)} ({post.rating}/5)</Rating>
+          <span>Por: {post.author ? post.author.username : 'Desconhecido'}</span>
+          <span>Em: {formatDate(post.createdAt)}</span>
+        </PostMeta>
+        <PostContent>
+          {post.reviewText}
+        </PostContent>
+      </PostBody>
+
       <CommentsSection>
         <CommentsTitle>Comentários ({comments.length})</CommentsTitle>
-        
         {comments.length > 0 ? (
           comments.map((comment) => (
             <CommentItem key={comment._id}>
               <CommentText>{comment.text}</CommentText>
-              <CommentMeta>
-                {/* Opcional: Adicionar "Por: Autor" se o backend suportar */}
-                Em: {formatDate(comment.createdAt)}
-              </CommentMeta>
+              <CommentMeta>Em: {formatDate(comment.createdAt)}</CommentMeta>
             </CommentItem>
           ))
         ) : (
           <p>Seja o primeiro a comentar!</p>
         )}
-
-        {/* 3. O Formulário de Comentário (Requisito) */}
-        {/* Passagem de props (postId) para o filho (Requisito) */}
         <CommentForm postId={postId} onCommentAdded={handleCommentAdded} />
       </CommentsSection>
     </PostContainer>

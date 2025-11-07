@@ -1,14 +1,13 @@
-// src/services/api.js
 import axios from 'axios';
 
+export const SERVER_URL = 'http://localhost:5000';
+
 const api = axios.create({
-  baseURL: 'http://localhost:5000/api', // A URL base do seu backend
+  baseURL: `${SERVER_URL}/api`, 
 });
 
-// Interceptor para adicionar o token JWT a todas as requisições (se existir)
 api.interceptors.request.use(
   (config) => {
-    // Pega o token do localStorage (vamos salvar lá no login)
     const userInfo = JSON.parse(localStorage.getItem('userInfo'));
     
     if (userInfo && userInfo.token) {

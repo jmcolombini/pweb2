@@ -1,8 +1,6 @@
-// src/components/Modal.js
 import React from 'react';
 import styled from 'styled-components';
 
-// --- Estilização ---
 const ModalOverlay = styled.div`
   position: fixed; /* Fica por cima de tudo */
   top: 0;
@@ -40,16 +38,13 @@ const CloseButton = styled.button`
     color: #000;
   }
 `;
-// --- Fim da Estilização ---
 
 const Modal = ({ isOpen, onClose, children }) => {
   if (!isOpen) {
-    return null; // Se não estiver aberto, não renderiza nada
+    return null; 
   }
 
-  // Função para fechar o modal ao clicar no Overlay (o fundo)
   const handleOverlayClick = (e) => {
-    // Só fecha se o clique foi no 'ModalOverlay' e não no 'ModalContent'
     if (e.target.id === 'modal-overlay') {
       onClose();
     }
@@ -59,7 +54,7 @@ const Modal = ({ isOpen, onClose, children }) => {
     <ModalOverlay id="modal-overlay" onClick={handleOverlayClick}>
       <ModalContent>
         <CloseButton onClick={onClose}>&times;</CloseButton>
-        {children} {/* Aqui é onde o formulário será injetado */}
+        {children} {}
       </ModalContent>
     </ModalOverlay>
   );

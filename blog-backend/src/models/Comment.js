@@ -1,4 +1,3 @@
-// src/models/Comment.js
 const mongoose = require('mongoose');
 
 const CommentSchema = new mongoose.Schema({
@@ -8,7 +7,7 @@ const CommentSchema = new mongoose.Schema({
   },
   post: {
     type: mongoose.Schema.Types.ObjectId,
-    ref: 'Post', // Referência ao modelo 'Post' (FK)
+    ref: 'Post', 
     required: true,
   },
   author: {

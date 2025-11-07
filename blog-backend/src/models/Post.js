@@ -1,15 +1,35 @@
 const mongoose = require('mongoose');
 
 const PostSchema = new mongoose.Schema({
-  title: {
+  restaurantName: {
     type: String,
-    required: [true, 'O título é obrigatório'],
+    required: [true, 'O nome do restaurante é obrigatório'],
     trim: true,
   },
-  content: {
+  
+  reviewText: {
     type: String,
-    required: [true, 'O texto (conteúdo) é obrigatório'],
+    required: [true, 'A avaliação é obrigatória'],
   },
+
+  rating: {
+    type: Number,
+    required: [true, 'A nota é obrigatória'],
+    min: 1,
+    max: 5,
+  },
+
+  imageUrl: {
+    type: String,
+    trim: true,
+    required: [true, 'A URL da foto é obrigatória'],
+  },
+
+  dish: {
+    type: String,
+    trim: true,
+  },
+  
   author: {
     type: mongoose.Schema.Types.ObjectId,
     ref: 'User',
@@ -17,7 +37,7 @@ const PostSchema = new mongoose.Schema({
   },
   comments: [{
     type: mongoose.Schema.Types.ObjectId,
-    ref: 'Comment', 
+    ref: 'Comment',
   }],
 }, {
   timestamps: true,

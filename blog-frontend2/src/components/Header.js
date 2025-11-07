@@ -1,30 +1,31 @@
-// src/components/Header.js
 import React from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import styled from 'styled-components';
-import { useAuth } from '../context/AuthContext'; // Nosso hook de autenticação!
+import { useAuth } from '../context/AuthContext';
 
-// --- Estilização com Styled Components ---
 const Nav = styled.nav`
-  background: #ffffff;
-  padding: 1rem 2rem;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  background: var(--color-surface); /* Fundo branco */
+  padding: 1.5rem 2.5rem; /* Mais espaçamento */
+  /* Sombra mais suave */
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05); 
   display: flex;
   justify-content: space-between;
   align-items: center;
+  border-bottom: 1px solid var(--color-border);
 `;
 
 const NavLogo = styled(Link)`
-  font-size: 1.5rem;
-  font-weight: bold;
-  color: #007bff;
+  font-size: 2rem; /* Maior */
+  font-family: var(--font-title); /* Fonte de Título */
+  font-weight: 700;
+  color: var(--color-text-primary); /* Cor de texto primária */
   text-decoration: none;
 `;
 
 const NavMenu = styled.ul`
   display: flex;
   align-items: center;
-  gap: 1.5rem; /* Espaçamento entre os itens */
+  gap: 2rem;
 `;
 
 const NavItem = styled.li`
@@ -32,60 +33,59 @@ const NavItem = styled.li`
 `;
 
 const NavLink = styled(Link)`
-  color: #555;
+  color: var(--color-text-secondary); /* Cinza mais sutil */
   text-decoration: none;
   font-weight: 500;
+  font-size: 1rem;
   transition: color 0.3s ease;
 
   &:hover {
-    color: #007bff;
+    color: var(--color-primary); /* Cor primária no hover */
   }
 `;
 
-// Botão de Logout estilizado de forma diferente
 const LogoutButton = styled.button`
+  /* Resetando o botão global para algo mais sutil */
   background: transparent;
   border: none;
-  color: #dc3545;
+  color: var(--color-text-secondary);
   font-weight: 500;
   cursor: pointer;
   font-size: 1rem;
   padding: 0;
+  font-family: var(--font-body);
 
   &:hover {
-    text-decoration: underline;
+    color: var(--color-primary);
+    transform: none; /* Remove o efeito de subir */
   }
 `;
 
 const UserInfo = styled.span`
-  color: #333;
+  color: var(--color-text-primary);
   font-weight: 600;
 `;
-// --- Fim da Estilização ---
 
 const Header = () => {
-  // Hooks que vamos usar (Requisitos do projeto)
   const { isAuthenticated, userInfo, logout } = useAuth();
-  const navigate = useNavigate(); // Hook de navegação
+  const navigate = useNavigate();
 
   const handleLogout = () => {
     logout();
-    navigate('/login'); // Redireciona para o login após sair
+    navigate('/login');
   };
 
   return (
     <Nav>
-      <NavLogo to="/">Blog N1</NavLogo>
+      <NavLogo to="/">Where2Eat</NavLogo>
       <NavMenu>
         <NavItem>
-          <NavLink to="/">Todos os Posts</NavLink>
+          <NavLink to="/">Ver Avaliações</NavLink>
         </NavItem>
         
         {isAuthenticated ? (
-          // Links para usuário LOGADO
           <>
             <NavItem>
-              {/* Mostra o nome do usuário */}
               <UserInfo>Olá, {userInfo.username}</UserInfo>
             </NavItem>
             <NavItem>
@@ -93,7 +93,6 @@ const Header = () => {
             </NavItem>
           </>
         ) : (
-          // Links para usuário DESLOGADO
           <>
             <NavItem>
               <NavLink to="/login">Login</NavLink>

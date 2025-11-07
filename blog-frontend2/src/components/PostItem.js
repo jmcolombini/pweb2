@@ -1,82 +1,141 @@
-// src/components/PostItem.js
 import React from 'react';
 import styled from 'styled-components';
-import { Link } from 'react-router-dom'; // Para navegar para o post individual
+import { Link } from 'react-router-dom';
+import { SERVER_URL } from '../services/api';
 
-// --- Estilização ---
 const PostCard = styled.div`
-  background: #ffffff;
-  border-radius: 8px;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
-  padding: 25px;
-  margin-bottom: 20px;
-  transition: box-shadow 0.3s ease;
-
+  background: var(--color-surface);
+  border-radius: 12px; /* Cantos mais arredondados */
+  /* Sombra muito mais sutil */
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
+  margin-bottom: 30px;
+  overflow: hidden;
+  display: flex;
+  flex-direction: row;
+  min-height: 240px;
+  max-height: 280px;
+  transition: box-shadow 0.3s ease, transform 0.3s ease;
+  
   &:hover {
-    box-shadow: 0 6px 16px rgba(0, 0, 0, 0.12);
+    transform: translateY(-5px);
+    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.08);
   }
 `;
 
+const PostImageContainer = styled(Link)`
+  width: 40%;
+  flex-shrink: 0;
+  background: #f0f0f0;
+  
+  img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transition: transform 0.4s ease;
+  }
+`;
+
+const PostContent = styled.div`
+  padding: 30px; /* Mais padding */
+  width: 60%;
+  display: flex;
+  flex-direction: column;
+`;
+
 const PostTitle = styled.h3`
-  margin-bottom: 10px;
-  font-size: 1.5rem;
+  margin: 0 0 10px 0;
+  font-size: 2rem; /* Fonte do título maior */
+  font-family: var(--font-title); /* Fonte de título */
   
   a {
-    color: #333;
+    color: var(--color-text-primary);
     text-decoration: none;
     &:hover {
-      color: #007bff;
+      color: var(--color-primary);
     }
   }
 `;
 
-const PostMeta = styled.p`
-  font-size: 0.9rem;
-  color: #777;
-  margin-bottom: 15px;
+const PostMeta = styled.div`
+  font-size: 1rem;
+  margin-bottom: 20px; /* Mais espaço */
+  display: flex;
+  gap: 15px;
+  align-items: center;
+`;
+
+const Rating = styled.span`
+  font-size: 1.1rem;
+  color: var(--color-rating); /* Nova cor de estrela */
+  font-weight: 700;
+`;
+
+const Author = styled.span`
+  color: var(--color-text-secondary);
+  font-style: italic;
 `;
 
 const PostExcerpt = styled.p`
-  color: #555;
+  color: var(--color-text-secondary);
   line-height: 1.7;
-  /* Limita o texto do conteúdo */
-  overflow: hidden;
-  text-overflow: ellipsis;
-  /* (Mostra as primeiras 3 linhas) */
+  flex-grow: 1;
+  font-family: var(--font-body);
+  
   display: -webkit-box;
   -webkit-line-clamp: 3;
-  -webkit-box-orient: vertical;  
+  -webkit-box-orient: vertical;
+  overflow: hidden;
 `;
-// --- Fim da Estilização ---
 
-// O componente recebe 'post' como prop (Requisito)
+const ReadMoreLink = styled(Link)`
+  font-weight: 600;
+  color: var(--color-primary);
+  text-decoration: none;
+  margin-top: 15px;
+  align-self: flex-start;
+`;
+
+const renderRating = (rating) => {
+  if (!rating) return '';
+  return '⭐'.repeat(rating);
+};
+
 const PostItem = ({ post }) => {
+  const { 
+    _id, 
+    restaurantName, 
+    reviewText, 
+    rating, 
+    imageUrl, 
+    author 
+  } = post;
 
-  // Função para formatar a data (opcional, mas bom para UX)
-  const formatDate = (isoDate) => {
-    return new Date(isoDate).toLocaleDateString('pt-BR', {
-      day: '2-digit',
-      month: 'long',
-      year: 'numeric',
-    });
-  };
+  const fullImageUrl = imageUrl ? `${SERVER_URL}${imageUrl}` : `https://via.placeholder.com/400x400.png?text=Where2Eat`;
 
   return (
     <PostCard>
-      <PostTitle>
-        {/* Link para a página de Post Individual (Requisito) */}
-        <Link to={`/post/${post._id}`}>{post.title}</Link>
-      </PostTitle>
+      <PostImageContainer to={`/post/${_id}`}>
+        <img src={fullImageUrl} alt={restaurantName} />
+      </PostImageContainer>
       
-      <PostMeta>
-        {/* Usamos 'post.author.username' pois o backend está 'populando' */}
-        Por: {post.author ? post.author.username : 'Usuário desconhecido'} 
-        {' em '} {formatDate(post.createdAt)}
-      </PostMeta>
+      <PostContent>
+        <PostTitle>
+          <Link to={`/post/${_id}`}>{restaurantName || 'Restaurante'}</Link>
+        </PostTitle>
 
-      <PostExcerpt>
-        {post.content}
-      </PostExcerpt>
+        <PostMeta>
+          <Rating>{renderRating(rating)} ({rating || '?'}/5)</Rating>
+          <Author>Por: {author ? author.username : 'Anônimo'}</Author>
+        </PostMeta>
+
+        <PostExcerpt>
+          {reviewText || 'Nenhuma avaliação fornecida.'}
+        </PostExcerpt>
+
+        <ReadMoreLink to={`/post/${_id}`}>
+          Ver avaliação completa
+        </ReadMoreLink>
+      </PostContent>
     </PostCard>
   );
 };

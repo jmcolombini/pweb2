@@ -1,43 +1,30 @@
-// src/server.js
+const path = require('path');
 const express = require('express');
 const dotenv = require('dotenv');
-// const cors = require('cors'); // <-- 1. COMENTE OU REMOVA A IMPORTAÇÃO DO 'cors'
 const connectDB = require('./config/db');
 
-// Carrega variáveis de ambiente
 dotenv.config();
 
-// Conecta ao banco de dados
 connectDB(); 
 
 const app = express();
 
-// --- INÍCIO DA CORREÇÃO "FORÇA BRUTA" ---
-// REMOVA a linha 'app.use(cors())'
-// E ADICIONE este middleware no lugar:
-
 app.use((req, res, next) => {
-  // Diz ao navegador que o frontend na porta 3000 TEM PERMISSÃO
   res.setHeader('Access-Control-Allow-Origin', 'http://localhost:3000');
   
-  // Diz quais MÉTODOS (verbs) o frontend pode usar
   res.setHeader('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, PATCH, OPTIONS');
   
-  // Diz quais CABEÇALHOS (headers) o frontend pode enviar
-  // (Importante para incluir 'Authorization' para o nosso token JWT)
   res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization');
   
-  // O navegador envia uma 'preflight request' (OPTIONS) antes do POST.
-  // Se for uma requisição OPTIONS, nós só respondemos "OK" e encerramos.
   if (req.method === 'OPTIONS') {
-    return res.sendStatus(200); // ou res.sendStatus(204)
+    return res.sendStatus(200); 
   }
 
-  // Se não for OPTIONS, passa para a próxima rota (ex: /api/auth/register)
   next();
 });
 
 app.use(express.json()); 
+app.use('/uploads', express.static(path.join(__dirname, '../uploads')));
 
 
 app.get('/', (req, res) => {

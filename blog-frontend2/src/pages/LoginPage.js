@@ -1,11 +1,9 @@
-// src/pages/LoginPage.js
 import React, { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import styled from 'styled-components';
 import api from '../services/api';
 import { useAuth } from '../context/AuthContext';
 
-// --- Estilização (Reutilizando estilos do RegisterPage) ---
 const FormContainer = styled.div`
   max-width: 400px;
   margin: 40px auto;
@@ -52,23 +50,20 @@ const InfoText = styled.p`
     font-weight: 600;
   }
 `;
-// --- Fim da Estilização ---
 
 const LoginPage = () => {
-  // Hooks (Requisitos)
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState(null);
   const [loading, setLoading] = useState(false);
 
   const navigate = useNavigate();
-  const { login } = useAuth(); // Do nosso AuthContext
+  const { login } = useAuth();
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     setError(null);
 
-    // Validação básica no cliente (Requisito)
     if (!username || !password) {
       setError('Por favor, preencha todos os campos.');
       return;
@@ -77,21 +72,16 @@ const LoginPage = () => {
     setLoading(true);
 
     try {
-      // Comunicação com API (Requisito) - Endpoint de Login
       const { data } = await api.post('/auth/login', {
         username,
         password,
       });
 
-      // Se deu certo:
-      // 1. "Loga" o usuário no AuthContext
       login(data);
       
-      // 2. Redireciona para a página inicial
       navigate('/');
 
     } catch (err) {
-      // Tratamento de Erros (Requisito)
       if (err.response && err.response.data && err.response.data.message) {
         setError(err.response.data.message);
       } else {

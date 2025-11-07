@@ -1,15 +1,15 @@
-// src/routes/commentRoutes.js
 const express = require('express');
 const router = express.Router();
 const {
-  getCommentsForPost,
   createComment,
+  getCommentsByPost,
 } = require('../controllers/commentController');
+const { protect } = require('../middleware/authMiddleware');
 
 router.route('/')
-  .post(createComment);
+  .post(protect, createComment);
 
 router.route('/:postId')
-  .get(getCommentsForPost);
+  .get(getCommentsByPost);
 
-module.exports = router; 
+module.exports = router;
